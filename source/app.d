@@ -19,8 +19,8 @@ void index(HTTPServerRequest req, HTTPServerResponse res) {
 }
 
 void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
-	enforceHTTP("img_url" in req.post, HTTPStatus.badRequest, "Missing image URL.");
-	enforceHTTP("payment" in req.post, HTTPStatus.badRequest, "Missing payment information.");
+	enforceHTTP("img_url" in req.form, HTTPStatus.badRequest, "Missing image URL.");
+	enforceHTTP("payment" in req.form, HTTPStatus.badRequest, "Missing payment information.");
 	// enforceHTTP("tim" in req.post, HTTPStatus.badRequest, "Missing timeout.");
 	// enforceHTTP("num" in req.post, HTTPStatus.badRequest, "Missing num Workers.");
 

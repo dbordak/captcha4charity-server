@@ -1,0 +1,11 @@
+{
+	"name": "captcha4charity-server",
+	"description": "It's a thing.",
+	"copyright": "Copyright © 2014, daniel",
+	"authors": ["daniel bordak", "revan sopher"],
+	"dependencies": {
+		"vibe-d": ">=0.7.17",
+		"gcm-d": ">=0.0.2"
+	},
+	"versions": ["VibeDefaultMain"]
+}

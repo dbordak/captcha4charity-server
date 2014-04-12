@@ -18,11 +18,23 @@ void index(HTTPServerRequest req, HTTPServerResponse res) {
 	res.render!("index.dt",req);
 }
 
+/**
+ * Adds a new captcha to the queue.
+ *
+ * Customer provides URL to the captcha, CC info, and optionally the number of
+ * workers it wants to complete the task and how long they have to complete it.
+ */
 void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 	enforceHTTP("img_url" in req.form, HTTPStatus.badRequest, "Missing image URL.");
 	enforceHTTP("payment" in req.form, HTTPStatus.badRequest, "Missing payment information.");
 	// enforceHTTP("tim" in req.post, HTTPStatus.badRequest, "Missing timeout.");
 	// enforceHTTP("num" in req.post, HTTPStatus.badRequest, "Missing num Workers.");
+}
 
-
+/**
+ * Slams the worker who completed the last captcha for a given customer.
+ * Customer provides CC info to identify self.
+ */
+void slamWorker(HTTPServerRequest req, HTTPServerResponse res) {
+	enforceHTTP("payment" in req.form, HTTPStatus.badRequest, "Missing payment information.");
 }

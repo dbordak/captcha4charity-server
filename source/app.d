@@ -1,16 +1,16 @@
 import vibe.d;
 
-	auto db = connectMongoDB("localhost").getDatabase("test");
-	auto coll = db["test"];
+//		auto db = connectMongoDB("localhost").getDatabase("test");
+//		auto coll = db["test"];
 
-	logInfo("Querying DB...");
-	Bson query = Bson(["name" : Bson("hans")]);
-	auto result = coll.find(query);
+//		logInfo("Querying DB...");
+//		Bson query = Bson(["name" : Bson("hans")]);
+//		auto result = coll.find(query);
 
-	logInfo("Iterating results...");
-	foreach (i, doc; result)
-		logInfo("Item %d: %s", i, doc.toJson().toString());
-}
+//		logInfo("Iterating results...");
+//		foreach (i, doc; result)
+//			logInfo("Item %d: %s", i, doc.toJson().toString());
+// }
 
 
 shared static this() {
@@ -26,7 +26,7 @@ shared static this() {
 	settings.bindAddresses = ["::1", "127.0.0.1"];
 	listenHTTP(settings, router);
 	listenTCP(8081, conn => conn.write(conn), "127.0.0.1");
-	auto db = connectMongoDB("").getDatabase("");
+	// auto db = connectMongoDB("").getDatabase("");
 
 	logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }

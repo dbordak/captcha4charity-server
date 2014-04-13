@@ -3,17 +3,6 @@ import std.file;
 import std.datetime;
 import std.container;
 
-//struct Cap{ string img; SysTime endDate; int customerID; };
-//Cap[1000] caps; //Fixed storage because Hackathon
-
-//auto captchas = BinaryHeap!(Cap[], "a.endDate > b.endDate")(caps);
-// shared auto captchas = heapify("a.endDate > b.endDate", caps);
-// shared auto captchas = heapify(caps);
-
-// auto userpass = splitLines(chomp(readText("secretmongo")));
-// auto mongo = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~
-//								"@ds039737.mongolab.com:39737/captcha4charity");
-
 MongoClient mongo;
 
 shared static this() {
@@ -76,9 +65,9 @@ void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 	auto jobs = mongo.getCollection("jobs");
 
 
-	// Add captcha to queue.
+	// Add captcha to Mongo
 
-	// Assign rID number.
+	// Assign rID number? Return Mongo ID?
 }
 
 /**

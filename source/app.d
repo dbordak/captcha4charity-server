@@ -20,7 +20,7 @@ shared static this() {
 	//Connect to MongoLab
 	auto userpass = splitLines(chomp(readText("secretmongo")));
 	mongo = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~
-						   "@ds039737.mongolab.com:39737");
+						   "@ds039737.mongolab.com:39737/captcha4charity");
 
 	//Set up URL Routing
 	auto router = new URLRouter;
@@ -73,7 +73,7 @@ void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 	//do something with payment
 
 	auto Date = Clock.currTime() + tim.seconds();
-	auto jobs = mongo.getDatabase("captcha4charity").getCollection("jobs");
+	auto jobs = mongo.getCollection("jobs");
 
 
 	// Add captcha to queue.

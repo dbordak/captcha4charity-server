@@ -32,9 +32,8 @@ html
       div(class='starter-template')
         h1 Butts.
         p(class='lead',style='white-space:pre;')
-          | Did you know? Revan is a butt. It\'s sad but true.
-          | While we lament this fact, always remember:
-          | I need parts for a J-type 327 Nubian
+          | dude this site is so webscale
+          | like you don\'t even know how scaly this web is
 
     //- Bootstrap dependencies
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')

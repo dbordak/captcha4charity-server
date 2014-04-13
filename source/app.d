@@ -1,19 +1,12 @@
 import vibe.d;
-
-//		auto db = connectMongoDB("localhost").getDatabase("test");
-//		auto coll = db["test"];
-
-//		logInfo("Querying DB...");
-//		Bson query = Bson(["name" : Bson("hans")]);
-//		auto result = coll.find(query);
-
-//		logInfo("Iterating results...");
-//		foreach (i, doc; result)
-//			logInfo("Item %d: %s", i, doc.toJson().toString());
-// }
-
+import std.file;
 
 shared static this() {
+	//Connect to MongoDB
+	auto userpass = splitLines(chomp(readText("secretmongo")));
+	auto db = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~ "@ds039737.mongolab.com:39737/captcha4charity").getDatabase("workers");
+
+	//Set up URL Routing
 	auto router = new URLRouter;
 	router.get("/", &index);
 	router.post("/captcha", &newCaptcha);
@@ -21,12 +14,15 @@ shared static this() {
 	router.post("/solve", &solveCaptcha);
 	router.post("/state", &setState);
 	router.get("*", serveStaticFiles("public/"));
+
+	//Start server
 	auto settings = new HTTPServerSettings;
 	settings.port = 8080;
 	settings.bindAddresses = ["::1", "127.0.0.1"];
 	listenHTTP(settings, router);
+
+	//Echo server
 	listenTCP(8081, conn => conn.write(conn), "127.0.0.1");
-	// auto db = connectMongoDB("").getDatabase("");
 
 	logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }

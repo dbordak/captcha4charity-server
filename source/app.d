@@ -2,8 +2,11 @@ import vibe.d;
 import std.file;
 import std.datetime;
 import std.container;
+import std.conv;
 
+struct PayInfo { int stuff; }; //Placehodler
 MongoClient mongo;
+PayInfo[string] ridMapping; //Maps request id to Payment information
 
 shared static this() {
 	//Connect to MongoLab
@@ -16,6 +19,7 @@ shared static this() {
 	router.get("/", &index);
 	router.post("/captcha", &newCaptcha);
 	router.get("/workers", &numWorkers);
+	router.get("/jobs", &numJobs);
 	router.post("/solve", &solveCaptcha);
 	router.post("/state", &setState);
 	router.get("/result/:rid", &getResult);
@@ -26,11 +30,6 @@ shared static this() {
 	settings.port = 8080;
 	settings.bindAddresses = ["::1", "127.0.0.1"];
 	listenHTTP(settings, router);
-
-	//Echo server
-	// listenTCP(8081, conn => conn.write(conn), "127.0.0.1");
-
-	//Create Data Structures
 
 	logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }
@@ -61,14 +60,12 @@ void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 	int num = 1;
 	string img = req.form["img_url"];
 	//do something with payment
+	string Date = BsonDate.fromStdTime(Clock.currStdTime() + tim*10000000).toString();
 
-	auto Date = Clock.currTime() + tim.seconds();
-	auto jobs = mongo.getCollection("jobs");
-
-
-	// Add captcha to Mongo
-
-	// Assign rID number? Return Mongo ID?
+	MongoCollection jobs = mongo.getDatabase("captcha4charity")["jobs"];
+	jobs.insert(Bson(["img":Bson(img), "date":Bson(Date)]));
+	auto cursor = jobs.find(Bson(["img":Bson(img), "date":Bson(Date)])).front;
+	res.writeBody(cursor["_id"].toString.chompPrefix("\"").chop());
 }
 
 /**
@@ -92,6 +89,14 @@ void numWorkers(HTTPServerRequest req, HTTPServerResponse res) {
 }
 
 /**
+ * Returns the number of jobs not yet accepted.
+ */
+void numJobs(HTTPServerRequest req, HTTPServerResponse res) {
+	res.writeBody(to!string(mongo.getDatabase("captcha4charity")["jobs"].count(Bson())));
+
+}
+
+/**
  * Called on POST after worker has solved a captcha.
  */
 void solveCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
@@ -100,17 +105,17 @@ void solveCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 	enforceHTTP("soln" in req.form, HTTPStatus.badRequest,
 				"Missing solution.");
 
-	//Report back the result of the captcha
-
-	//Wait a few minutes for blame before adding points and deducting monies.
+	MongoCollection jobs = mongo.getDatabase("captcha4charity")["completed"];
+	jobs.insert(Bson(["_id":Bson(req.form["rid"]), "soln":Bson(req.form["soln"])]));
 }
 
 void getResult(HTTPServerRequest req, HTTPServerResponse res) {
 	auto rid = req.params["rid"];
 
-	// do mongo lookup
+	MongoCollection jobs = mongo.getDatabase("captcha4charity")["completed"];
+	auto cursor = jobs.find(Bson(["_id":Bson(rid)])).front;
+	res.writeBody(cursor["soln"].toString.chompPrefix("\"").chop());
 
-	// print the thing.
 }
 
 /**

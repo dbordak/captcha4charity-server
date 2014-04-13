@@ -19,7 +19,8 @@ shared static this() {
 	router.get("/", &index);
 	router.post("/captcha", &newCaptcha);
 	router.get("/workers", &numWorkers);
-	router.get("/jobs", &numJobs);
+	router.get("/numjobs", &numJobs);
+	router.get("/job", &getJob);
 	router.post("/solve", &solveCaptcha);
 	router.post("/state", &setState);
 	router.get("/result/:rid", &getResult);
@@ -39,7 +40,8 @@ shared static this() {
  * Might just remove this later?
  */
 void index(HTTPServerRequest req, HTTPServerResponse res) {
-	res.render!("index.dt",req);
+	res.redirect("https://github.com/revan/captcha4charity",300);
+	// res.render!("index.dt",req);
 }
 
 /**
@@ -75,7 +77,15 @@ void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 void slamWorker(HTTPServerRequest req, HTTPServerResponse res) {
 	enforceHTTP("rid" in req.form, HTTPStatus.badRequest,
 				"Missing request id.");
+	enforceHTTP("success" in req.form, HTTPStatus.badRequest,
+				"Missing sucess status.");
 
+	if(req.form["success"] == "1") {
+		donateMonies(req.form["rid"]);
+		//Give worker points
+	} else {
+		//Once we implement a scoring system, this section will punish the worker.
+	}
 	//Remove completed job.
 
 	//Next time worker logs, tell them they've been slammed.
@@ -93,7 +103,14 @@ void numWorkers(HTTPServerRequest req, HTTPServerResponse res) {
  */
 void numJobs(HTTPServerRequest req, HTTPServerResponse res) {
 	res.writeBody(to!string(mongo.getDatabase("captcha4charity")["jobs"].count(Bson())));
+}
 
+/**
+ * Get a job.
+ */
+void getJob(HTTPServerRequest req, HTTPServerResponse res) {
+	// res.writeBody(to!string(
+	mongo.getDatabase("captcha4charity")["jobs"].findOne(Bson()).toJson().toString();
 }
 
 /**
@@ -124,4 +141,10 @@ void getResult(HTTPServerRequest req, HTTPServerResponse res) {
 void setState(HTTPServerRequest req, HTTPServerResponse res) {
 	enforceHTTP("state" in req.form, HTTPStatus.badRequest, "Missing state.");
 	//Receive state, move worker to appropriate queue.
+}
+
+void donateMonies(string rid) {
+	//TODO: FirstGiving API, once we get the key.
+	//Also fetch payment info by relation to rid.
+
 }

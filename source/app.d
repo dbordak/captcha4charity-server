@@ -10,8 +10,17 @@ import std.container;
 // shared auto captchas = heapify("a.endDate > b.endDate", caps);
 // shared auto captchas = heapify(caps);
 
+// auto userpass = splitLines(chomp(readText("secretmongo")));
+// auto mongo = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~
+//								"@ds039737.mongolab.com:39737/captcha4charity");
+
+MongoClient mongo;
 
 shared static this() {
+	//Connect to MongoLab
+	auto userpass = splitLines(chomp(readText("secretmongo")));
+	mongo = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~
+						   "@ds039737.mongolab.com:39737");
 
 	//Set up URL Routing
 	auto router = new URLRouter;
@@ -64,8 +73,7 @@ void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 	//do something with payment
 
 	auto Date = Clock.currTime() + tim.seconds();
-
-
+	auto jobs = mongo.getDatabase("captcha4charity").getCollection("jobs");
 
 
 	// Add captcha to queue.
@@ -109,13 +117,4 @@ void solveCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 void setState(HTTPServerRequest req, HTTPServerResponse res) {
 	enforceHTTP("state" in req.form, HTTPStatus.badRequest, "Missing state.");
 	//Receive state, move worker to appropriate queue.
-}
-
-// Probably a better way to do this but hackathon.
-MongoDatabase getCollection(string col) {
-	auto userpass = splitLines(chomp(readText("secretmongo")));
-	auto mongo = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~
-								"@ds039737.mongolab.com:39737/captcha4charity");
-	auto workerDB = mongo.getDatabase(col);
-	return workerDB;
 }

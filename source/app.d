@@ -18,6 +18,7 @@ shared static this() {
 	router.get("/workers", &numWorkers);
 	router.post("/solve", &solveCaptcha);
 	router.post("/state", &setState);
+	router.get("/result/:rid", &getResult);
 	router.get("*", serveStaticFiles("public/"));
 
 	//Start server
@@ -94,10 +95,22 @@ void numWorkers(HTTPServerRequest req, HTTPServerResponse res) {
  * Called on POST after worker has solved a captcha.
  */
 void solveCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
+	enforceHTTP("rid" in req.form, HTTPStatus.badRequest,
+				"Missing request id.");
+	enforceHTTP("soln" in req.form, HTTPStatus.badRequest,
+				"Missing solution.");
 
 	//Report back the result of the captcha
 
 	//Wait a few minutes for blame before adding points and deducting monies.
+}
+
+void getResult(HTTPServerRequest req, HTTPServerResponse res) {
+	auto rid = req.params["rid"];
+
+	// do mongo lookup
+
+	// print the thing.
 }
 
 /**

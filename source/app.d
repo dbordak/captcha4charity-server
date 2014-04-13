@@ -1,10 +1,17 @@
 import vibe.d;
 import std.file;
+import std.datetime;
+import std.container;
+
+//struct Cap{ string img; SysTime endDate; int customerID; };
+//Cap[1000] caps; //Fixed storage because Hackathon
+
+//auto captchas = BinaryHeap!(Cap[], "a.endDate > b.endDate")(caps);
+// shared auto captchas = heapify("a.endDate > b.endDate", caps);
+// shared auto captchas = heapify(caps);
+
 
 shared static this() {
-	//Connect to MongoDB
-	auto userpass = splitLines(chomp(readText("secretmongo")));
-	auto db = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~ "@ds039737.mongolab.com:39737/captcha4charity").getDatabase("workers");
 
 	//Set up URL Routing
 	auto router = new URLRouter;
@@ -22,7 +29,9 @@ shared static this() {
 	listenHTTP(settings, router);
 
 	//Echo server
-	listenTCP(8081, conn => conn.write(conn), "127.0.0.1");
+	// listenTCP(8081, conn => conn.write(conn), "127.0.0.1");
+
+	//Create Data Structures
 
 	logInfo("Please open http://127.0.0.1:8080/ in your browser.");
 }
@@ -48,6 +57,16 @@ void newCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 				"Missing payment information.");
 	// enforceHTTP("tim" in req.post, HTTPStatus.badRequest, "Missing timeout.");
 	// enforceHTTP("num" in req.post, HTTPStatus.badRequest, "Missing num Workers.");
+
+	int tim = 300;
+	int num = 1;
+	string img = req.form["img_url"];
+	//do something with payment
+
+	auto Date = Clock.currTime() + tim.seconds();
+
+
+
 
 	// Add captcha to queue.
 
@@ -90,4 +109,13 @@ void solveCaptcha(HTTPServerRequest req, HTTPServerResponse res) {
 void setState(HTTPServerRequest req, HTTPServerResponse res) {
 	enforceHTTP("state" in req.form, HTTPStatus.badRequest, "Missing state.");
 	//Receive state, move worker to appropriate queue.
+}
+
+// Probably a better way to do this but hackathon.
+MongoDatabase getCollection(string col) {
+	auto userpass = splitLines(chomp(readText("secretmongo")));
+	auto mongo = connectMongoDB("mongodb://" ~ userpass[0] ~ ":" ~ userpass[1] ~
+								"@ds039737.mongolab.com:39737/captcha4charity");
+	auto workerDB = mongo.getDatabase(col);
+	return workerDB;
 }
